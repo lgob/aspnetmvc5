@@ -1,0 +1,73 @@
+﻿@model List<aspnetmvc5.Models.Topic>
+@using aspnetmvc5.Models;
+@using Microsoft.AspNet.Identity;
+@using Microsoft.AspNet.Identity.Owin;
+@{
+    ViewBag.Title = "Index";
+}
+<br />
+
+<h2>Topics</h2>
+@foreach (var t in Model)
+{
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @t.Title
+                    <br />
+
+
+                </div>
+                <div class="panel-footer ">
+                    <div class="row">
+                        <div class="col-sm-6">
+                           
+                            Posted By @ApplicationRepository.GetUser(t.UserID).UserName Date: @t.DateCreated
+
+
+                        </div>
+                        <div class="col-sm-6">
+                            <form action="~/Topics/Details/@t.TopicID">
+                                <span class="pull-right"><button class="btn btn-default">View</button></span>
+
+                            </form>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <br />
+
+
+                                }
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="row">
+
+        <div class="col-sm-12">
+            <form action="~/Topics/AddTopic" method="post">
+                <div class="form-group">
+                    <label for="comment">Topic:</label>
+                    <textarea class="form-control" rows="5" name="topic" id="topic"></textarea>
+                    <button type="submit" class="btn btn-default">Add Topic</button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+}
+else
+{
+    <h2>You need to be logged-in to add topics</h2>
+}
+
+
+

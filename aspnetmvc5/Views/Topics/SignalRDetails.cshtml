@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewBag.Title = "SignalRDetails";
+}
+
+<h2>Comments</h2>
+<div id="commentsList">
+
+</div>
+<div>
+    @if (User.Identity.IsAuthenticated)
+    {
+
+
+        <div class="row">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <input type="hidden" name="topicid" value="@ViewBag.TopicID" />
+                    <label for="comments">Comment:</label>
+                    <textarea class="form-control" rows="5" name="comments" id="comments"></textarea>
+                    <button type="button" id="btnAddComment" class="btn btn-default">Add Comment</button>
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <h2>You need to be logged-in to comment</h2>
+    }
+</div>
+
+@section scripts{
+<script src="~/Scripts/jquery.signalR-2.1.2.min.js"></script>
+<script src="~/signalr/hubs"></script>
+<script>
+
+    //step 1 create instance of hub
+    var topicsHub = $.connection.topicsHub;
+    //step 2 create method callback for server push
+    topicsHub.client.loadComments = function (data) {
+        console.log(data);
+        var commentsHtml="";
+        if (data.length > 0) {
+
+            $.each(data, function (i, val) {
+                commentsHtml+='<div class="row">';
+                commentsHtml+='<div class="col-sm-12">';
+                commentsHtml+='<div class="panel panel-default">';
+                commentsHtml+='<div class="panel-body">' + val.Answer + ' </div>';
+                commentsHtml+='<div class="panel-footer">'
+                commentsHtml+='By: ' +  val.User  + '<br/> Posted On:'+ val.DatePosted +'</div>';
+                commentsHtml+='</div>';
+                commentsHtml+='</div>';
+                commentsHtml += '</div>';
+            })
+        } else {
+            commentsHtml += "<p> No Comments for this topic</p>"
+        }
+
+        //append comments in comments div
+        $("#commentsList").html(commentsHtml);
+    }
+
+    //Step 3 call method on the server to add comments
+    $.connection.hub.start().done(function () {
+        var topicid = $("#topicid").val();
+       
+        //load comments for this topic
+        topicsHub.server.getComments(@ViewBag.TopicID);
+
+        $("#btnAddComment").click(function () {
+            var comments = $("textarea#comments").val();
+            topicsHub.server.addComment(@ViewBag.TopicID,comments)
+            //clear comments text
+            $("#comments").val("");
+        })
+    });
+</script>
+    
+ }
+
+
